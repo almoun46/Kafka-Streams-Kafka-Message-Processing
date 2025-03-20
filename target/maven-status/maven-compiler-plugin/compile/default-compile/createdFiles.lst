@@ -1,0 +1,4 @@
+org/exemple/demo/KafkaMessageProducer.class
+org/exemple/demo/MultiProducer.class
+org/exemple/demo/KafkaMessageConsumer.class
+org/exemple/demo/TemperatureStreamProcessor.class

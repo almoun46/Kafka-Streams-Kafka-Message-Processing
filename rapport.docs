@@ -1,0 +1,138 @@
+# **Rapport d'Analyse - Apache Kafka & Kafka Streams**
+
+## **1. Introduction**
+Apache Kafka est une plateforme de streaming distribuée permettant de traiter de grandes quantités de données en temps réel. Ce projet vise à exploiter Kafka pour deux scénarios distincts :
+
+1. **Exercice 2 : Kafka Message Processing & Comparaison avec JMS** - Étude de la production et consommation de messages avec Kafka et comparaison avec JMS.
+2. **Exercice 3 : Kafka Streams - Monitoring des Températures** - Mise en place d'un traitement de flux en temps réel pour surveiller les températures des bâtiments.
+
+Ce rapport détaille la conception des programmes et les aspects techniques essentiels mis en œuvre.
+
+---
+
+## **2. Exercice 2 : Kafka Message Processing & Comparaison avec JMS**
+
+### **2.1 Objectif**
+L'objectif est de :
+- Mettre en place un **Kafka Producer** pour envoyer un grand volume de messages dans un topic Kafka.
+- Développer un **Kafka Consumer** pour consommer ces messages et mesurer le temps de traitement.
+- Expérimenter avec **différentes stratégies de consommation**.
+- Comparer les performances de Kafka avec JMS.
+
+### **2.2 Conception du Programme**
+
+#### **2.2.1 Kafka Producer**
+Le producteur envoie **1 million de messages** dans un topic Kafka avec **2 partitions** pour assurer une meilleure distribution des messages.
+
+- **Technologies utilisées** : Java, Kafka Producer API, Maven.
+- **Code principal** :
+  ```java
+  ProducerRecord<String, String> record = new ProducerRecord<>(TOPIC_NAME, key, message);
+  producer.send(record);
+  ```
+
+#### **2.2.2 Kafka Consumer**
+Deux stratégies de consommation ont été testées :
+1. **Plusieurs consommateurs dans un même groupe** : Kafka distribue les messages entre eux.
+2. **Consommateurs dans différents groupes** : Chaque consommateur reçoit tous les messages.
+
+- **Mesure des performances** : Temps total de consommation enregistré.
+- **Code principal** :
+  ```java
+  consumer.subscribe(Collections.singletonList(TOPIC_NAME));
+  while (true) {
+      ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(100));
+      for (ConsumerRecord<String, String> record : records) {
+          System.out.println("Message consommé : " + record.value());
+      }
+  }
+  ```
+
+### **2.3 Analyse des Résultats**
+| Stratégie | Nombre de consommateurs | Temps total (ms) |
+|-----------|------------------------|-----------------|
+| Même groupe | 2 consommateurs | 941, 991 |
+| Même groupe | 3 consommateurs | 3974, 4042 |
+| Groupes différents | 2 consommateurs | 1122, 1117 |
+| Groupes différents | 3 consommateurs | 1117, 1200 |
+
+✅ **Observation :** Kafka est plus performant que JMS pour le traitement de grandes quantités de données en parallèle.
+
+### **2.4 Comparaison avec JMS**
+| Fonctionnalité | Kafka | JMS |
+|--------------|------|----|
+| Mode de communication | Publish/Subscribe et Queue | Publish/Subscribe et Queue |
+| Scalabilité | Très scalable | Moins scalable |
+| Rétention des messages | Stocke les messages | Messages effacés après consommation |
+| Performance | Très rapide | Moins performant |
+| Garantie d’ordre | Assurée par partitions | Assurée par files d’attente |
+
+✅ **Conclusion** : Kafka est plus adapté aux **systèmes big data** et au **traitement en temps réel**, tandis que JMS convient mieux aux **transactions d'entreprise**.
+
+---
+
+## **3. Exercice 3 : Kafka Streams - Monitoring des Températures**
+
+### **3.1 Objectif**
+- Simuler **des capteurs de température** dans plusieurs bâtiments.
+- Utiliser **Kafka Streams** pour traiter ces données en **temps réel**.
+- Appliquer un **fenêtrage de 5 minutes** pour calculer la moyenne des températures par salle.
+- Détecter et **générer une alerte** si une température est inférieure à **5°C** ou supérieure à **30°C**.
+
+### **3.2 Conception du Programme**
+
+#### **3.2.1 Kafka Multi-Producteurs**
+- Chaque producteur **représente un bâtiment** et envoie des **températures toutes les 10 secondes**.
+- **Format du message produit** :
+  ```json
+  {
+    "Building1": [
+      {"salle": "salle0", "temperature": 19.4},
+      {"salle": "salle1", "temperature": 3.2}
+    ]
+  }
+  ```
+
+#### **3.2.2 Kafka Streams Processing**
+- **Consomme les messages depuis `topic1`**.
+- **Groupe les messages par salle** et applique **un fenêtrage de 5 minutes**.
+- **Calcule la moyenne des températures**.
+- **Envoie une alerte vers `topic_alerts` si nécessaire**.
+
+- **Code principal** :
+  ```java
+  KTable<Windowed<String>, Double> avgTemperatureByRoom = temperatureStream
+      .groupByKey(Grouped.with(Serdes.String(), Serdes.Double()))
+      .windowedBy(TimeWindows.of(Duration.ofMinutes(5)))
+      .aggregate(
+          () -> 0.0,
+          (salle, temperature, avg) -> (avg + temperature) / 2,
+          Materialized.with(Serdes.String(), Serdes.Double())
+      );
+  ```
+
+### **3.3 Résultats et Analyse**
+- **Les moyennes sont calculées et stockées** en temps réel.
+- **Les alertes sont envoyées immédiatement** si une température est hors seuil.
+- **Exemple d'alerte** reçue :
+  ```json
+  🚨 Alerte Température - Salle: salle3 | Temp Moyenne: 30.8°C
+  🚨 Alerte Température - Salle: salle1 | Temp Moyenne: 4.2°C
+  ```
+
+---
+
+## **4. Conclusion Générale**
+✅ **Exercice 2 : Kafka est performant pour la gestion de messages en masse** et offre une **meilleure scalabilité que JMS**.  
+✅ **Exercice 3 : Kafka Streams permet de traiter les données en temps réel** et d’implémenter facilement des **systèmes de monitoring**.  
+✅ **Kafka est donc adapté aux architectures modernes** nécessitant du **Big Data, de l’Event Streaming et du traitement en temps réel**.
+
+---
+
+## **5. Références**
+- [Kafka Streams : Windowing Concepts](https://senthilnayagan.medium.com/windowing-in-kafka-streams-513fc0b410c9)
+- [Gson Library pour Parsing JSON](https://howtodoinjava.com/gson/gson/)
+- [Apache Kafka Documentation](https://kafka.apache.org/documentation/)
+
+🚀 **Ce projet permet d’expérimenter Kafka pour le message processing et le traitement en temps réel !** 🎯🔥
+
