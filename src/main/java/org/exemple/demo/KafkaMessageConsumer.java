@@ -42,72 +42,7 @@ public class KafkaMessageConsumer implements Runnable {
         }
     }
 
-    // public void createConsumer() {
-    // Properties props = new Properties();
-    // props.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,
-    // "localhost:"+this.port);
-    // props.setProperty(ConsumerConfig.GROUP_ID_CONFIG, this.groupId);
-    // props.setProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
-    // props.setProperty(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false");
-    // props.setProperty(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
-    // "org.apache.kafka.common.serialization.StringDeserializer");
-    // props.setProperty(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
-    // "org.apache.kafka.common.serialization.StringDeserializer");
-    // KafkaConsumer<String, String> consumer = new KafkaConsumer<>(props);
-    // consumer.subscribe(this.topicNames);
-    // int messageCount = 0;
-    // long startTime = System.currentTimeMillis();
-    // while (messageCount < 10) {
-    // ConsumerRecords<String, String> records =
-    // consumer.poll(Duration.ofMillis(100));
-    // for (ConsumerRecord<String, String> record : records) {
-
-    // // Afficher l'offset, la clé et la valeur du message
-    // System.out.printf("Consumer Name = %s, Offset = %d, key = %s, value = %s,
-    // group=%s\n", Thread.currentThread().getName() , record.offset() ,
-    // record.key() , record.value(), this.groupId); // public void createConsumersWithDifferentGroupsAndTopics(List<String> groups,
-    // List<String> topics, int port, int numConsumers){
-
-    // List<Thread> threads = new ArrayList<Thread>();
-    // // Selon nombre de consommateurs, créer des consommateurs avec des groupes et
-    // des topics différents
-    // int remainingConsumers = numConsumers % groups.size();
-    // int consumerPergroups = numConsumers - remainingConsumers;
-
-    // for (String group : groups){
-    // for (int i = 0; i < consumerPergroups; i++){
-    // KafkaMessageConsumer consumer = new KafkaMessageConsumer(topics, group,
-    // port);
-    // Thread thread = new Thread(consumer);
-    // threads.add(thread);
-    // thread.start();
-    // System.out.println("Consumer " + thread.getName() + " started");
-    // }
-    // }
-    // // Ajouter les consommateurs restants jusqu'à la limite du nombre de groupes
-    // for (int i = 0; i < remainingConsumers; i++){
-    // KafkaMessageConsumer consumer = new KafkaMessageConsumer(topics,
-    // groups.get(i), port);
-    // Thread thread = new Thread(consumer);
-    // threads.add(thread);
-    // thread.start();
-    // }
-    // //Attendre que tous les consommateurs se terminent
-    // for(Thread thread : threads) {
-    // try {
-    // thread.join();
-    // } catch (InterruptedException e) {
-    // System.out.println("Erreur lors de l'attente des consommateurs : " +
-    // e.getMessage());
-    // Thread.currentThread().interrupt();
-    // }
-    // }
-
-    // }
-    // le consommateur " + Thread.currentThread().getName());
-    // consumer.close();
-    // }
-
+    
     private void consumeMessages() {
         Properties props = new Properties();
         props.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:" + this.port);

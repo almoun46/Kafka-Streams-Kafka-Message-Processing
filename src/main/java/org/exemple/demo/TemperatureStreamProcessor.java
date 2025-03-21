@@ -84,7 +84,7 @@ public class TemperatureStreamProcessor implements Runnable {
         TimeWindows timeWindowing = TimeWindows.of(Duration.ofMinutes(1)).advanceBy(Duration.ofSeconds(30));
 
         KTable<Windowed<String>, Double> avgTemperatureByRoom = temperatureStream
-                .groupByKey(Grouped.with(Serdes.String(), Serdes.Double())) // Groupement par salle
+                .groupByKey(Grouped.with(Serdes.String(), Serdes.Double())) // Groupement par bâtiment-salle
                 .windowedBy(timeWindowing)
                 .aggregate(
                         () -> 0.0, // Valeur initiale

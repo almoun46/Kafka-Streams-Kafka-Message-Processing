@@ -132,34 +132,7 @@ public class MultiProducer implements Runnable {
      *             ]
      *         }
      *
-    private static JsonObject sendTemperatureData(int buildingId) {
-        String buildingName = "Building" + buildingId;
-        Random random = new Random();
-
-        // Liste pour stocker les salles et températures.
-        List<JsonObject> romList = new ArrayList<>();
-
-        for (int i = 0; i < NUM_ROOMS; i++) {
-            JsonObject roomData = new JsonObject();
-            roomData.addProperty("salle", "salle" + i);
-
-            // Généner des température aléatoirement et arrondir à 3 chiffres après la
-            // virgule
-            double genTemperature = -5 + random.nextDouble() * 40; // température entre -5 et 35
-            double roundedTemprature = Math.round(genTemperature * 1000.00) / 1000.00;
-
-            roomData.addProperty("temperature", roundedTemprature);
-            romList.add(roomData);
-        }
-
-        // Création de la structure finale
-        JsonObject finalJson = new JsonObject();
-        finalJson.add(buildingName, new Gson().toJsonTree(romList));
-
-        return finalJson;
-
-    }*/
-
+    */
 
     private static String sendTemperatureData(int buildingId) {
         String buildingName = "Building" + buildingId;
